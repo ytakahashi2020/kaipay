@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; base-uri 'none'; form-action 'none'">
+<meta charset="utf-8">
+<title>KaiPay Prototype</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #0f1420;
+    color: #e8ecf4;
+    width: 1280px;
+    height: 720px;
+    overflow: hidden;
+  }
+  .app { padding: 24px 40px; }
+  header { text-align: center; margin-bottom: 18px; }
+  header h1 { margin: 0; font-size: 30px; color: #7cf0c4; letter-spacing: 1px; }
+  header p { margin: 4px 0 0; color: #9aa6c0; font-size: 14px; }
+  .main { display: flex; gap: 28px; justify-content: center; }
+  .card {
+    background: #171d2e;
+    border: 1px solid #2a3350;
+    border-radius: 14px;
+    padding: 24px 28px;
+    width: 480px;
+    min-height: 460px;
+  }
+  .card h2 { margin-top: 0; font-size: 19px; color: #fff; border-bottom: 1px solid #2a3350; padding-bottom: 10px; }
+  label { display: block; font-size: 12px; color: #8b97b8; margin-top: 16px; margin-bottom: 6px; }
+  input[type=text] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #3a4568;
+    background: #0f1420;
+    color: #e8ecf4;
+    font-size: 14px;
+  }
+  .static {
+    background: #0f1420;
+    border: 1px solid #2a3350;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: #cfd6ea;
+  }
+  button {
+    margin-top: 20px;
+    background: #4f7cff;
+    color: #fff;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+  }
+  button:hover { background: #3f67e0; }
+  .hidden { display: none; }
+  #status-idle { color: #8b97b8; font-size: 14px; margin-top: 10px; }
+  #status-active p { font-size: 15px; color: #7cf0c4; }
+  #result { margin-top: 16px; border-top: 1px solid #2a3350; padding-top: 14px; }
+  #result h3 { margin: 0 0 8px; font-size: 16px; color: #fff; }
+  #result p { font-size: 13px; color: #cfd6ea; margin: 6px 0; }
+  .sms { background: #0f1420; border: 1px dashed #3a4568; padding: 8px; border-radius: 8px; color: #9ad1ff !important; }
+  #savings { margin-top: 16px; border-top: 1px solid #2a3350; padding-top: 14px; }
+  #savings h3 { margin: 0 0 8px; font-size: 16px; color: #fff; }
+  #savings p { font-size: 14px; margin: 6px 0; color: #cfd6ea; }
+  .highlight { color: #7cf0c4 !important; font-weight: bold; font-size: 15px !important; }
+  footer {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 11px;
+    color: #566;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>KaiPay</h1>
+    <p>AI-powered agent for cross-border stablecoin remittances</p>
+  </header>
+
+  <div class="main">
+    <div class="card">
+      <h2>Agent Setup</h2>
+      <label>Recipient phone number</label>
+      <input type="text" data-demo="input-phone" value="+63 912 345 6789">
+      <label>Monthly amount</label>
+      <div class="static">$500 USD → USDC</div>
+      <label>Allocation Rule</label>
+      <div class="static">Bills 40% · Savings 30% · Cash-out 30%</div>
+      <button data-demo="btn-activate" onclick="activate()">Activate Agent</button>
+    </div>
+
+    <div class="card">
+      <h2>Agent Status</h2>
+      <div id="status-idle" data-demo="status-idle">Agent not active yet. Set rules and activate to begin.</div>
+
+      <div id="status-active" class="hidden" data-demo="status-active">
+        <p>✅ Agent Active — next run: Oct 1, 2025</p>
+        <button data-demo="btn-run" onclick="runNow()">Run Now (Simulate)</button>
+      </div>
+
+      <div id="result" class="hidden" data-demo="result">
+        <h3>Transfer Complete</h3>
+        <p>Converted $500 → 500 USDC → ₱27,500 via Solana Pay</p>
+        <p>Bills ₱11,000 · Savings ₱8,250 · Cash-out ₱8,250</p>
+        <p class="sms">📱 SMS to +63 912 345 6789: "You received ₱27,500, split across bills, savings & cash."</p>
+        <button data-demo="btn-savings" onclick="showSavings()">View Savings Dashboard</button>
+      </div>
+
+      <div id="savings" class="hidden" data-demo="savings">
+        <h3>Fee Savings</h3>
+        <p>Traditional remittance fee (7%): $35.00</p>
+        <p>KaiPay fee (0.5%): $2.50</p>
+        <p class="highlight">You saved $32.50 this transfer</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>Prototype — all data is simulated</footer>
+</div>
+
+<script>
+function activate(){
+  document.getElementById('status-idle').classList.add('hidden');
+  document.getElementById('status-active').classList.remove('hidden');
+}
+function runNow(){
+  document.getElementById('result').classList.remove('hidden');
+}
+function showSavings(){
+  document.getElementById('savings').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
